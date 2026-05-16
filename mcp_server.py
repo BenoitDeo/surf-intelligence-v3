@@ -1,0 +1,59 @@
+from dotenv import load_dotenv
+from mcp.server.fastmcp import FastMCP
+
+from config.spots import SPOTS
+from engine.router import get_best_spot
+
+
+load_dotenv()
+
+mcp = FastMCP(
+    "SurfCheck",
+    instructions=(
+        "Use this server to recommend the best current surf spot around "
+        "Peniche, Portugal, using Windguru forecasts fetched via Apify."
+    ),
+    stateless_http=True,
+    json_response=True,
+)
+
+
+@mcp.tool()
+def best_surf_spot(include_all_spots: bool = False) -> dict:
+    """Return the best current Peniche-area surf spot based on live Windguru conditions."""
+    result = get_best_spot()
+    response = {
+        "summary": result["summary"],
+        "best_spot": result["best_spot"],
+        "errors": result["errors"],
+    }
+    if include_all_spots:
+        response["all_spots"] = result["all_spots"]
+    return response
+
+
+@mcp.tool()
+def list_surf_spots() -> list[dict]:
+    """List the configured surf spots and their Windguru spot IDs."""
+    return [
+        {
+            "key": key,
+            "name": spot["name"],
+            "windguru_spot_id": spot["windguru_spot_id"],
+            "lat": spot["lat"],
+            "lon": spot["lon"],
+        }
+        for key, spot in SPOTS.items()
+    ]
+
+
+def app():
+    return mcp.streamable_http_app()
+
+
+if __name__ == "__main__":
+    import os
+
+    mcp.settings.host = os.getenv("HOST", "0.0.0.0")
+    mcp.settings.port = int(os.getenv("PORT", "8000"))
+    mcp.run(transport="streamable-http")

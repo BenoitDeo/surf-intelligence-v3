@@ -1,10 +1,10 @@
-def swell_score(data):
-    h = data["swellHeight"]
-    p = data["swellPeriod"]
+def swell_score(data, spot):
+    h = data["swell_height_m"]
+    p = data["swell_period_s"]
 
     score = 5
 
-    if 1.2 <= h <= 2.5:
+    if spot["ideal_swell_min_m"] <= h <= spot["ideal_swell_max_m"]:
         score += 2
 
     if p >= 12:

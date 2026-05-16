@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: surfcheck-mcp
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APIFY_TOKEN
+        sync: false
+      - key: SURFCHECK_ACCESS_TOKEN
+        generateValue: true
