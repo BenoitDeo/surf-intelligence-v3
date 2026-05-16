@@ -109,18 +109,7 @@ async def openapi_action_schema(request):
                                 "content": {
                                     "application/json": {
                                         "schema": {
-                                            "type": "object",
-                                            "properties": {
-                                                "summary": {"type": "string"},
-                                                "target_time": {"type": ["string", "null"]},
-                                                "best_spot": {"type": "object"},
-                                                "all_spots": {
-                                                    "type": "array",
-                                                    "items": {"type": "object"},
-                                                },
-                                                "errors": {"type": "object"},
-                                            },
-                                            "required": ["summary", "best_spot", "all_spots"],
+                                            "$ref": "#/components/schemas/SurfRecommendation"
                                         }
                                     }
                                 },
@@ -131,6 +120,25 @@ async def openapi_action_schema(request):
                 }
             },
             "components": {
+                "schemas": {
+                    "SurfRecommendation": {
+                        "type": "object",
+                        "properties": {
+                            "summary": {"type": "string"},
+                            "target_time": {
+                                "type": "string",
+                                "nullable": True,
+                            },
+                            "best_spot": {"type": "object"},
+                            "all_spots": {
+                                "type": "array",
+                                "items": {"type": "object"},
+                            },
+                            "errors": {"type": "object"},
+                        },
+                        "required": ["summary", "best_spot", "all_spots"],
+                    }
+                },
                 "securitySchemes": {
                     "SurfCheckToken": {
                         "type": "apiKey",
