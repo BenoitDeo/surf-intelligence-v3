@@ -13,7 +13,8 @@ load_dotenv()
 
 def _verify_access_token(request):
     expected = os.getenv("SURFCHECK_ACCESS_TOKEN")
-    if expected and request.query_params.get("token") != expected:
+    supplied = request.query_params.get("token") or request.headers.get("x-surfcheck-token")
+    if expected and supplied != expected:
         return JSONResponse({"detail": "Invalid access token"}, status_code=401)
     return None
 
@@ -27,7 +28,7 @@ async def surf(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot(target_time=request.query_params.get("at"))
+    result = get_best_spot(target_time=_target_time_from_request(request))
     if not result["best_spot"]:
         return JSONResponse(
             {"message": "No surf forecast could be fetched", "errors": result["errors"]},
@@ -41,7 +42,7 @@ async def voice(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot(target_time=request.query_params.get("at"))
+    result = get_best_spot(target_time=_target_time_from_request(request))
     if not result["best_spot"]:
         return PlainTextResponse("I could not fetch enough current surf data right now.")
     return PlainTextResponse(result["summary"])
@@ -52,13 +53,103 @@ async def shortcut(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot(target_time=request.query_params.get("at"))
+    result = get_best_spot(target_time=_target_time_from_request(request))
     text = result["summary"]
     return JSONResponse({"text": text})
 
 
+async def openapi_action_schema(request):
+    base_url = str(request.base_url).rstrip("/")
+    return JSONResponse(
+        {
+            "openapi": "3.1.0",
+            "info": {
+                "title": "SurfCheck",
+                "version": "1.0.0",
+                "description": (
+                    "Recommends the best surf spot around Peniche by comparing "
+                    "Windguru forecasts against optimal conditions for each spot."
+                ),
+            },
+            "servers": [{"url": base_url}],
+            "paths": {
+                "/surf": {
+                    "get": {
+                        "operationId": "getBestSurfSpot",
+                        "summary": "Get the best surf spot for now or a requested time.",
+                        "description": (
+                            "Use this whenever the user asks for the best surf spot, "
+                            "surf forecast, ranking, or what spot to choose near Peniche."
+                        ),
+                        "parameters": [
+                            {
+                                "name": "at",
+                                "in": "query",
+                                "required": False,
+                                "description": (
+                                    "Requested forecast time in natural language or ISO format. "
+                                    "Examples: tomorrow 9am, today 15:00, 2026-05-17T09:00:00+01:00."
+                                ),
+                                "schema": {"type": "string"},
+                            },
+                            {
+                                "name": "question",
+                                "in": "query",
+                                "required": False,
+                                "description": (
+                                    "The user's original question. Use this if the user asks in natural "
+                                    "language, for example: what is best tomorrow at 9am?"
+                                ),
+                                "schema": {"type": "string"},
+                            }
+                        ],
+                        "responses": {
+                            "200": {
+                                "description": "Spot recommendation with ranking and reasons.",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "summary": {"type": "string"},
+                                                "target_time": {"type": ["string", "null"]},
+                                                "best_spot": {"type": "object"},
+                                                "all_spots": {
+                                                    "type": "array",
+                                                    "items": {"type": "object"},
+                                                },
+                                                "errors": {"type": "object"},
+                                            },
+                                            "required": ["summary", "best_spot", "all_spots"],
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                        "security": [{"SurfCheckToken": []}],
+                    }
+                }
+            },
+            "components": {
+                "securitySchemes": {
+                    "SurfCheckToken": {
+                        "type": "apiKey",
+                        "in": "header",
+                        "name": "X-SurfCheck-Token",
+                    }
+                }
+            },
+        }
+    )
+
+
 app = mcp_app()
 app.routes.insert(0, Route("/health", health, methods=["GET"]))
+app.routes.insert(0, Route("/openapi-action.json", openapi_action_schema, methods=["GET"]))
 app.routes.insert(0, Route("/surf", surf, methods=["GET"]))
 app.routes.insert(0, Route("/voice", voice, methods=["GET"]))
 app.routes.insert(0, Route("/shortcut", shortcut, methods=["GET"]))
+
+
+def _target_time_from_request(request):
+    return request.query_params.get("at") or request.query_params.get("question")

@@ -108,6 +108,46 @@ curl "http://localhost:8000/surf?at=2026-05-17T09:00:00%2B01:00"
 
 In ChatGPT web MCP, ask: `What will be the best surf spot tomorrow at 9am?`
 
+## Use from ChatGPT mobile without Siri
+
+The best non-Siri option is a Custom GPT with an Action. This works in normal
+ChatGPT chat on iPhone, so you can type or use iPhone keyboard dictation. ChatGPT
+Voice Mode still does not run custom actions.
+
+1. Deploy this app.
+2. Open ChatGPT on web and create a GPT.
+3. Name it `SurfCheck`.
+4. In Instructions, paste:
+
+```text
+You are SurfCheck. When the user asks about surf spots near Peniche, use the SurfCheck action. Always explain the best spot, the score, the main reasons, and 2-3 alternatives. If the user asks for a future time, pass it as the at parameter, e.g. tomorrow 9am.
+```
+
+5. Add an Action.
+6. Import schema from:
+   `https://your-render-service.onrender.com/openapi-action.json`
+7. Authentication: API Key.
+8. Auth type: Custom.
+9. Custom header name:
+   `X-SurfCheck-Token`
+10. API key value:
+   your `SURFCHECK_ACCESS_TOKEN`
+11. Save the GPT.
+
+On iPhone, open that GPT and ask:
+
+```text
+What is the best spot tomorrow at 9am?
+Why not Lagide?
+Give me the top 3 for beginner-friendly waves this afternoon.
+```
+
+For the Action test panel, try:
+
+```text
+question = what is the best spot tomorrow at 9am?
+```
+
 ## Windguru spot IDs
 
 The configured numeric Windguru spot IDs are in `config/spots.py`.
