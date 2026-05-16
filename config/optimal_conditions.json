@@ -1,0 +1,432 @@
+{
+  "area": "Peniche, Baleal, Ferrel, Obidos, Lourinha",
+  "units": {
+    "wind_speed": "km/h",
+    "swell_height": "m",
+    "swell_period": "s"
+  },
+  "notes": [
+    "Spot windows are practical scoring ranges, not guarantees.",
+    "Sandbars shift often around Peniche, so beachbreak tide preferences should be treated as adjustable.",
+    "Wind directions are compass directions the wind blows from.",
+    "Confidence high means multiple spot guides agree; medium means one guide plus local geometry; low means mostly inferred from beach exposure."
+  ],
+  "spots": [
+    {
+      "key": "areia_branca",
+      "name": "Praia da Areia Branca",
+      "windguru_spot_id": 58060,
+      "lat": 39.267,
+      "lon": -9.34,
+      "type": "beachbreak",
+      "bottom": "sand",
+      "ability": ["beginner", "intermediate"],
+      "optimal": {
+        "wind_directions": ["E", "NE", "SE"],
+        "max_wind_speed": 18,
+        "swell_directions": ["W", "NW", "SW"],
+        "swell_height": {"min": 0.8, "ideal_min": 1.0, "ideal_max": 2.2, "max": 2.8},
+        "swell_period": {"min": 8, "ideal_min": 10},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["W", "NW", "SW"],
+        "swell_height_over": 3.0,
+        "notes": ["Can get exposed and messy in strong west/northwest wind."]
+      },
+      "confidence": "medium",
+      "sources": ["https://old.windguru.cz/cat/index.php?sc=58060"]
+    },
+    {
+      "key": "consolacao",
+      "name": "Consolacao",
+      "windguru_spot_id": 1185514,
+      "lat": 39.325408,
+      "lon": -9.361144,
+      "type": "beachbreak and reef",
+      "bottom": "sand and rock",
+      "ability": ["beginner", "intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["E", "NE", "SE"],
+        "max_wind_speed": 20,
+        "swell_directions": ["W", "NW"],
+        "swell_height": {"min": 1.2, "ideal_min": 1.8, "ideal_max": 3.5, "max": 4.5},
+        "swell_period": {"min": 10, "ideal_min": 12},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["W", "SW"],
+        "swell_height_over": 4.5,
+        "notes": ["South reef is serious on bigger swells; north beach is softer."]
+      },
+      "confidence": "high",
+      "sources": ["https://surfingportugal.net/spots/consolacao/"]
+    },
+    {
+      "key": "molhe_leste",
+      "name": "Molhe Leste",
+      "windguru_spot_id": 1118700,
+      "lat": 39.350577,
+      "lon": -9.36875,
+      "type": "jetty wedge",
+      "bottom": "sand",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["E", "NE"],
+        "max_wind_speed": 22,
+        "swell_directions": ["SW", "W"],
+        "swell_height": {"min": 1.5, "ideal_min": 1.8, "ideal_max": 3.5, "max": 4.5},
+        "swell_period": {"min": 10, "ideal_min": 12},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["S", "SW", "W"],
+        "swell_height_over": 4.5,
+        "notes": ["Local, fast, powerful; less forgiving as size increases."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://www.surfspots.co/spot/molhe-leste",
+        "https://www.ericeirasurfhouse.com/surf-spots/peniche-molho-leste/",
+        "https://www.xtremespots.com/board-sports/surfing/molhe-leste-peniche-lisbon-and-coast-portugal/"
+      ]
+    },
+    {
+      "key": "supertubos",
+      "name": "Supertubos",
+      "windguru_spot_id": 55936,
+      "lat": 39.345833,
+      "lon": -9.368333,
+      "type": "beachbreak",
+      "bottom": "sand",
+      "ability": ["intermediate", "advanced", "pro"],
+      "optimal": {
+        "wind_directions": ["E", "NE", "N"],
+        "max_wind_speed": 22,
+        "swell_directions": ["W", "WNW"],
+        "swell_height": {"min": 1.2, "ideal_min": 1.5, "ideal_max": 3.2, "max": 4.0},
+        "swell_period": {"min": 10, "ideal_min": 12},
+        "tide_stages": ["mid", "high"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["W", "SW", "S"],
+        "swell_directions": ["N", "NNE"],
+        "swell_height_over": 4.0,
+        "notes": ["Too much north in the swell can be shadowed by the peninsula."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://www.surfline.com/surf-report/supertubos/5842041f4e65fad6a7708bc3/spot-guide",
+        "https://www.surfline.com/surf-news/mechanics-supertubos-supertubes-peniche-portugal-surf/36539",
+        "https://www.windguru.cz/55936"
+      ]
+    },
+    {
+      "key": "peniche_norte",
+      "name": "Peniche Norte",
+      "windguru_spot_id": 900162,
+      "lat": 39.372972,
+      "lon": -9.375561,
+      "type": "beachbreak",
+      "bottom": "sand and rock patches",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["S", "SE", "E"],
+        "max_wind_speed": 20,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.9, "ideal_min": 1.2, "ideal_max": 2.6, "max": 3.2},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["mid", "high"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Northern exposure can get raw in wind or too much swell."]
+      },
+      "confidence": "medium",
+      "sources": ["https://www.windguru.cz/900162"]
+    },
+    {
+      "key": "papoa",
+      "name": "Papoa",
+      "windguru_spot_id": 1138778,
+      "lat": 39.37448,
+      "lon": -9.377964,
+      "type": "reef and point-like peaks",
+      "bottom": "rock",
+      "ability": ["advanced"],
+      "optimal": {
+        "wind_directions": ["E", "SE", "S"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 1.2, "ideal_min": 1.5, "ideal_max": 2.8, "max": 3.5},
+        "swell_period": {"min": 10, "ideal_min": 12},
+        "tide_stages": ["mid", "high"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Rocky, exposed, and not a default recommendation for casual sessions."]
+      },
+      "confidence": "low",
+      "sources": ["https://www.windguru.cz/1138778"]
+    },
+    {
+      "key": "baleal",
+      "name": "Baleal",
+      "windguru_spot_id": 501140,
+      "lat": 39.36,
+      "lon": -9.36,
+      "type": "mixed beachbreaks and reefs",
+      "bottom": "sand and reef",
+      "ability": ["beginner", "intermediate"],
+      "optimal": {
+        "wind_directions": ["NE", "E", "SE"],
+        "max_wind_speed": 20,
+        "swell_directions": ["WNW", "NW"],
+        "swell_height": {"min": 0.6, "ideal_min": 0.9, "ideal_max": 1.8, "max": 2.6},
+        "swell_period": {"min": 8, "ideal_min": 10},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["W", "NW"],
+        "swell_height_over": 3.0,
+        "notes": ["Choose the protected side of the peninsula when swell or wind is too strong."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://www.surfline.com/surf-report/baleal/5842041f4e65fad6a7708bc6/spot-guide",
+        "https://old.windguru.cz/int/index.php?go=1&vs=1&sc=501140"
+      ]
+    },
+    {
+      "key": "cantinho_da_baia",
+      "name": "Cantinho da Baia",
+      "windguru_spot_id": 500477,
+      "lat": 39.372261,
+      "lon": -9.340053,
+      "type": "sheltered beachbreak",
+      "bottom": "sand",
+      "ability": ["beginner", "intermediate"],
+      "optimal": {
+        "wind_directions": ["NW", "NE", "E"],
+        "max_wind_speed": 20,
+        "swell_directions": ["NW", "WNW"],
+        "swell_height": {"min": 0.4, "ideal_min": 0.6, "ideal_max": 1.5, "max": 2.0},
+        "swell_period": {"min": 7, "ideal_min": 9},
+        "tide_stages": ["high"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["S", "SW", "W"],
+        "swell_height_over": 2.5,
+        "notes": ["Often crowded with schools; best used as the sheltered/smaller option."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://www.surfspots.co/spot/cantinho-da-baia",
+        "https://www.surfspots.pt/baleal-cantinho.html"
+      ]
+    },
+    {
+      "key": "baleal_sul",
+      "name": "Baleal Sul",
+      "windguru_spot_id": null,
+      "lat": 39.3685,
+      "lon": -9.339,
+      "type": "sheltered beachbreak",
+      "bottom": "sand",
+      "ability": ["beginner", "intermediate"],
+      "optimal": {
+        "wind_directions": ["N", "NE", "E"],
+        "max_wind_speed": 20,
+        "swell_directions": ["W", "NW"],
+        "swell_height": {"min": 0.5, "ideal_min": 0.7, "ideal_max": 1.8, "max": 2.5},
+        "swell_period": {"min": 8, "ideal_min": 10},
+        "tide_stages": ["mid", "high"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["S", "SW", "W"],
+        "swell_height_over": 3.0,
+        "notes": ["Useful escape option when exposed north-facing beaches are too big."]
+      },
+      "confidence": "medium",
+      "sources": ["https://www.surfline.com/surf-report/baleal/5842041f4e65fad6a7708bc6/spot-guide"]
+    },
+    {
+      "key": "prainha_baleal",
+      "name": "Prainha Baleal",
+      "windguru_spot_id": 1081569,
+      "lat": 39.374121,
+      "lon": -9.338166,
+      "type": "beachbreak",
+      "bottom": "sand with nearby reef",
+      "ability": ["beginner", "intermediate"],
+      "optimal": {
+        "wind_directions": ["S", "SE", "E"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.5, "ideal_min": 0.7, "ideal_max": 1.8, "max": 2.4},
+        "swell_period": {"min": 8, "ideal_min": 10},
+        "tide_stages": ["mid", "high"],
+        "tide_movement": ["rising"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 2.8,
+        "notes": ["Can be the protected beginner option when bigger west/northwest swell hits."]
+      },
+      "confidence": "medium",
+      "sources": [
+        "https://pt.wikipedia.org/wiki/Baleal",
+        "https://www.windguru.cz/1081569"
+      ]
+    },
+    {
+      "key": "lagido",
+      "name": "Lagido",
+      "windguru_spot_id": 39832,
+      "lat": 39.37,
+      "lon": -9.33,
+      "type": "reef",
+      "bottom": "reef",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["E", "SE", "S"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.8, "ideal_min": 1.0, "ideal_max": 2.2, "max": 3.0},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.0,
+        "notes": ["Low tide can be too shallow; high tide can soften unless swell is bigger."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://surfingportugal.net/spots/baleal-lagide/",
+        "https://www.surfspots.pt/lagide-baleal.html",
+        "https://www.surfnesslodge.com/en/lagido-surf-spot/"
+      ]
+    },
+    {
+      "key": "almagreira",
+      "name": "Almagreira",
+      "windguru_spot_id": 1228141,
+      "lat": 39.379166,
+      "lon": -9.314609,
+      "type": "beachbreak",
+      "bottom": "sand with rocks at low tide",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["S", "SE"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.9, "ideal_min": 1.2, "ideal_max": 2.4, "max": 3.2},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Watch rocks at low tide and currents at higher tides."]
+      },
+      "confidence": "high",
+      "sources": [
+        "https://www.saltybed.com/spots/qUlm/almagreira/surf-guide",
+        "https://surfstash.pt/peniche-surf-spot-guide/",
+        "https://www.ferrelsurfhouse.com/peniche-portugal"
+      ]
+    },
+    {
+      "key": "belgas",
+      "name": "Belgas",
+      "windguru_spot_id": null,
+      "lat": 39.386,
+      "lon": -9.308,
+      "type": "beachbreak",
+      "bottom": "sand with rocks",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["S", "SE", "E"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.9, "ideal_min": 1.2, "ideal_max": 2.5, "max": 3.5},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Treat like the Ferrel/Almagreira open coast unless local observation says otherwise."]
+      },
+      "confidence": "low",
+      "sources": ["inferred_from_nearby_almagreira_exposure"]
+    },
+    {
+      "key": "pico_da_mota",
+      "name": "Pico da Mota",
+      "windguru_spot_id": 38154,
+      "lat": 39.4,
+      "lon": -9.28,
+      "type": "beachbreak",
+      "bottom": "sand",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["E", "SE"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.9, "ideal_min": 1.2, "ideal_max": 2.6, "max": 3.5},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Open coast north of Baleal; can be raw and currenty."]
+      },
+      "confidence": "medium",
+      "sources": ["https://www.windguru.cz/38154"]
+    },
+    {
+      "key": "praia_del_rey",
+      "name": "Praia d'El Rey",
+      "windguru_spot_id": 566141,
+      "lat": 39.385264,
+      "lon": -9.282589,
+      "type": "beachbreak",
+      "bottom": "sand",
+      "ability": ["intermediate", "advanced"],
+      "optimal": {
+        "wind_directions": ["E", "SE"],
+        "max_wind_speed": 18,
+        "swell_directions": ["N", "NW", "W"],
+        "swell_height": {"min": 0.9, "ideal_min": 1.2, "ideal_max": 2.4, "max": 3.2},
+        "swell_period": {"min": 9, "ideal_min": 11},
+        "tide_stages": ["low", "mid"],
+        "tide_movement": ["rising", "falling"]
+      },
+      "avoid": {
+        "wind_directions": ["N", "NW", "W"],
+        "swell_height_over": 3.5,
+        "notes": ["Open coast option; check banks and currents before recommending."]
+      },
+      "confidence": "medium",
+      "sources": ["https://www.windguru.cz/566141"]
+    }
+  ]
+}

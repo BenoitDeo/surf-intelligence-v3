@@ -27,7 +27,7 @@ async def surf(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot()
+    result = get_best_spot(target_time=request.query_params.get("at"))
     if not result["best_spot"]:
         return JSONResponse(
             {"message": "No surf forecast could be fetched", "errors": result["errors"]},
@@ -41,7 +41,7 @@ async def voice(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot()
+    result = get_best_spot(target_time=request.query_params.get("at"))
     if not result["best_spot"]:
         return PlainTextResponse("I could not fetch enough current surf data right now.")
     return PlainTextResponse(result["summary"])
@@ -52,7 +52,7 @@ async def shortcut(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot()
+    result = get_best_spot(target_time=request.query_params.get("at"))
     text = result["summary"]
     return JSONResponse({"text": text})
 

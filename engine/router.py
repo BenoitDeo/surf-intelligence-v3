@@ -1,12 +1,13 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from config.spots import SPOTS
 from engine.forecast import normalize_windguru_forecast
-from engine.scoring import evaluate_spot
+from engine.scoring import evaluate_spot, load_optimal_conditions
+from engine.time_utils import parse_target_time, target_time_label
 from jobs.fetch_apify import fetch_windguru_forecast
 
 
-def get_best_spot(spot_keys=None):
+def get_best_spot(spot_keys=None, target_time=None):
+    target = parse_target_time(target_time) if isinstance(target_time, str) else target_time
     spots = _selected_spots(spot_keys)
     best = None
     best_score = -1
@@ -15,7 +16,7 @@ def get_best_spot(spot_keys=None):
 
     with ThreadPoolExecutor(max_workers=min(8, len(spots) or 1)) as executor:
         futures = {
-            executor.submit(_fetch_and_evaluate, spot_id, spot): spot_id
+            executor.submit(_fetch_and_evaluate, spot_id, spot, target): spot_id
             for spot_id, spot in spots.items()
         }
         for future in as_completed(futures):
@@ -35,42 +36,49 @@ def get_best_spot(spot_keys=None):
     ranked = sorted(results, key=lambda item: item["total_score"], reverse=True)
 
     return {
-        "summary": recommendation_text(best, ranked),
+        "target_time": target.isoformat() if target else None,
+        "summary": recommendation_text(best, ranked, target),
         "best_spot": best,
         "all_spots": ranked,
         "errors": errors,
     }
 
 
-def recommendation_text(best, ranked):
+def recommendation_text(best, ranked, target_time=None):
     if not best:
-        return "I could not fetch enough current Windguru data to recommend a spot."
+        return f"I could not fetch enough Windguru data for {target_time_label(target_time)}."
 
     forecast = best["forecast"]
     runners_up = ", ".join(item["name"] for item in ranked[1:4]) or "none"
 
     return (
-        f"Best call right now: {best['name']} "
+        f"Best call for {target_time_label(target_time)}: {best['name']} "
         f"({best['total_score']}/10). "
         f"Wind {forecast['wind_direction']} at {forecast['wind_speed_kmh']:.0f} km/h, "
         f"swell {forecast['swell_height_m']:.1f} m at "
         f"{forecast['swell_period_s']:.0f}s. "
-        f"Next checks: {runners_up}."
+        f"Next checks: {runners_up}. "
+        f"{' '.join(best['match_reasons'][:2])}"
     )
 
 
 def _selected_spots(spot_keys):
+    spot_profiles = {
+        key: spot
+        for key, spot in load_optimal_conditions().items()
+        if spot.get("windguru_spot_id")
+    }
     if not spot_keys:
-        return SPOTS
+        return spot_profiles
 
     return {
-        spot_id: SPOTS[spot_id]
+        spot_id: spot_profiles[spot_id]
         for spot_id in spot_keys
-        if spot_id in SPOTS
+        if spot_id in spot_profiles
     }
 
 
-def _fetch_and_evaluate(spot_id, spot):
+def _fetch_and_evaluate(spot_id, spot, target_time):
     payload = fetch_windguru_forecast(spot["windguru_spot_id"])
-    forecast = normalize_windguru_forecast(payload)
+    forecast = normalize_windguru_forecast(payload, target_time)
     return evaluate_spot(spot_id, spot, forecast)

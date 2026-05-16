@@ -1,8 +1,8 @@
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from config.spots import SPOTS
 from engine.router import get_best_spot
+from engine.scoring import load_optimal_conditions
 
 
 load_dotenv()
@@ -19,9 +19,9 @@ mcp = FastMCP(
 
 
 @mcp.tool()
-def best_surf_spot(include_all_spots: bool = False) -> dict:
-    """Return the best current Peniche-area surf spot based on live Windguru conditions."""
-    result = get_best_spot()
+def best_surf_spot(include_all_spots: bool = False, target_time: str | None = None) -> dict:
+    """Return the best Peniche-area surf spot for now or a requested time like tomorrow 9am."""
+    result = get_best_spot(target_time=target_time)
     response = {
         "summary": result["summary"],
         "best_spot": result["best_spot"],
@@ -40,10 +40,11 @@ def list_surf_spots() -> list[dict]:
             "key": key,
             "name": spot["name"],
             "windguru_spot_id": spot["windguru_spot_id"],
+            "has_live_forecast": bool(spot["windguru_spot_id"]),
             "lat": spot["lat"],
             "lon": spot["lon"],
         }
-        for key, spot in SPOTS.items()
+        for key, spot in load_optimal_conditions().items()
     ]
 
 

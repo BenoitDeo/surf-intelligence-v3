@@ -99,6 +99,15 @@ uvicorn server:app --reload
 
 Open `GET /surf` for JSON, `GET /voice` for spoken text, or `/mcp` for MCP.
 
+Forecast a specific time with the `at` query parameter:
+
+```sh
+curl "http://localhost:8000/voice?at=tomorrow%209am"
+curl "http://localhost:8000/surf?at=2026-05-17T09:00:00%2B01:00"
+```
+
+In ChatGPT web MCP, ask: `What will be the best surf spot tomorrow at 9am?`
+
 ## Windguru spot IDs
 
 The configured numeric Windguru spot IDs are in `config/spots.py`.
