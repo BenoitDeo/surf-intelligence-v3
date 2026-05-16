@@ -28,12 +28,32 @@ async def surf(request):
     if unauthorized:
         return unauthorized
 
-    result = get_best_spot(target_time=_target_time_from_request(request))
+    try:
+        result = get_best_spot(target_time=_target_time_from_request(request))
+    except Exception as exc:
+        return JSONResponse(
+            {
+                "ok": False,
+                "summary": f"SurfCheck could not process that request: {exc}",
+                "target_time": None,
+                "best_spot": None,
+                "all_spots": [],
+                "errors": {"request": str(exc)},
+            }
+        )
+
     if not result["best_spot"]:
         return JSONResponse(
-            {"message": "No surf forecast could be fetched", "errors": result["errors"]},
-            status_code=502,
+            {
+                "ok": False,
+                "summary": "No surf forecast could be fetched. Check APIFY_TOKEN and the Apify actor response.",
+                "target_time": result.get("target_time"),
+                "best_spot": None,
+                "all_spots": [],
+                "errors": result["errors"],
+            }
         )
+    result["ok"] = True
     return JSONResponse(result)
 
 
