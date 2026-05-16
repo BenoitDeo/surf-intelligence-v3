@@ -88,7 +88,8 @@ async def openapi_action_schema(request):
                 "version": "1.0.0",
                 "description": (
                     "Recommends the best surf spot around Peniche by comparing "
-                    "Windguru forecasts against optimal conditions for each spot."
+                    "Apify-fetched Windguru forecasts against optimal conditions "
+                    "for each spot. SurfCheck must be the only live forecast source."
                 ),
             },
             "servers": [{"url": base_url}],
@@ -99,7 +100,9 @@ async def openapi_action_schema(request):
                         "summary": "Get the best surf spot for now or a requested time.",
                         "description": (
                             "Use this whenever the user asks for the best surf spot, "
-                            "surf forecast, ranking, or what spot to choose near Peniche."
+                            "surf forecast, ranking, or what spot to choose near Peniche. "
+                            "Do not answer these questions from model memory or web browsing; "
+                            "this Apify-backed operation is the required source of truth."
                         ),
                         "parameters": [
                             {

@@ -11,7 +11,9 @@ mcp = FastMCP(
     "SurfCheck",
     instructions=(
         "Use this server to recommend the best current surf spot around "
-        "Peniche, Portugal, using Windguru forecasts fetched via Apify."
+        "Peniche, Portugal. All live surf recommendations must use Windguru "
+        "forecasts fetched through Apify; do not use model memory, web browsing, "
+        "or direct Windguru calls as a substitute."
     ),
     stateless_http=True,
     json_response=True,
