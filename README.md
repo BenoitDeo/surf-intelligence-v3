@@ -88,6 +88,9 @@ APIFY_TOKEN=your_apify_token
 
 For Render, set `APIFY_TOKEN` as an environment variable in the Render dashboard.
 Set `SURFCHECK_ACCESS_TOKEN` too. This protects the Siri Shortcut endpoints.
+Optionally set `APIFY_SPOTS_PER_RUN` to control how many Windguru spots are sent
+to each Apify actor run. The default is `4`, which keeps Apify calls sequential
+and avoids account memory-limit errors from many concurrent actor runs.
 
 ## Run
 

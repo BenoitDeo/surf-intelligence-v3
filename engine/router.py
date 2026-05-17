@@ -1,9 +1,9 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import os
 
 from engine.forecast import normalize_windguru_forecast
 from engine.scoring import evaluate_spot, load_optimal_conditions
 from engine.time_utils import parse_target_time, target_time_label
-from jobs.fetch_apify import APIFY_ACTOR_ID, fetch_windguru_forecast
+from jobs.fetch_apify import APIFY_ACTOR_ID, fetch_windguru_forecasts
 
 
 SOURCE_POLICY = {
@@ -28,15 +28,19 @@ def get_best_spot(spot_keys=None, target_time=None):
     results = []
     errors = {}
 
-    with ThreadPoolExecutor(max_workers=min(8, len(spots) or 1)) as executor:
-        futures = {
-            executor.submit(_fetch_and_evaluate, spot_id, spot, target): spot_id
-            for spot_id, spot in spots.items()
-        }
-        for future in as_completed(futures):
-            spot_id = futures[future]
+    spot_items = list(spots.items())
+    for chunk in _chunks(spot_items, _apify_spots_per_run()):
+        windguru_ids = [spot["windguru_spot_id"] for _, spot in chunk]
+        try:
+            payload = fetch_windguru_forecasts(windguru_ids)
+        except Exception as exc:
+            for spot_id, _ in chunk:
+                errors[spot_id] = str(exc)
+            continue
+
+        for spot_id, spot in chunk:
             try:
-                result = future.result()
+                result = _evaluate_from_payload(spot_id, spot, payload, target)
             except Exception as exc:
                 errors[spot_id] = str(exc)
                 continue
@@ -97,9 +101,11 @@ def _selected_spots(spot_keys):
     }
 
 
-def _fetch_and_evaluate(spot_id, spot, target_time):
-    payload = fetch_windguru_forecast(spot["windguru_spot_id"])
-    forecast = normalize_windguru_forecast(payload, target_time)
+def _evaluate_from_payload(spot_id, spot, payload, target_time):
+    forecast = normalize_windguru_forecast(
+        _records_for_spot(payload, spot["windguru_spot_id"]),
+        target_time,
+    )
     forecast["source"] = {
         "source_name": SOURCE_POLICY["source_name"],
         "provider": SOURCE_POLICY["provider"],
@@ -108,3 +114,45 @@ def _fetch_and_evaluate(spot_id, spot, target_time):
         "external_live_sources_used": [],
     }
     return evaluate_spot(spot_id, spot, forecast)
+
+
+def _records_for_spot(payload, windguru_spot_id):
+    records = []
+    expected = str(windguru_spot_id)
+    for record in _flatten_records(payload):
+        record_spot_id = (
+            record.get("spotId")
+            or record.get("spot_id")
+            or record.get("location_id")
+            or record.get("windguru_spot_id")
+        )
+        if record_spot_id is None or str(record_spot_id) == expected:
+            records.append(record)
+    if not records:
+        raise ValueError(f"No Apify forecast records found for Windguru spot {windguru_spot_id}")
+    return records
+
+
+def _flatten_records(payload):
+    records = []
+    if isinstance(payload, list):
+        for item in payload:
+            records.extend(_flatten_records(item))
+    elif isinstance(payload, dict):
+        if any(key in payload for key in ("spotId", "windSpeed", "windDirection", "waveHeight")):
+            records.append(payload)
+        for value in payload.values():
+            records.extend(_flatten_records(value))
+    return records
+
+
+def _apify_spots_per_run():
+    try:
+        return max(1, int(os.getenv("APIFY_SPOTS_PER_RUN", "4")))
+    except ValueError:
+        return 4
+
+
+def _chunks(items, size):
+    for index in range(0, len(items), size):
+        yield items[index : index + size]

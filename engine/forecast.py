@@ -19,6 +19,8 @@ SWELL_DIRECTION_KEYS = (
 TIDE_STAGE_KEYS = ("tideStage", "tide_stage", "tide", "tideState")
 TIDE_MOVEMENT_KEYS = ("tideMovement", "tide_movement", "tideTrend")
 TIMESTAMP_KEYS = ("timestamp", "time", "datetime", "date")
+FORECAST_DATE_KEYS = ("forecastDate", "forecast_date")
+FORECAST_HOUR_KEYS = ("forecastHour", "forecast_hour")
 
 
 def normalize_windguru_forecast(payload: Any, target_time: datetime | None = None) -> dict[str, Any]:
@@ -44,8 +46,7 @@ def normalize_windguru_forecast(payload: Any, target_time: datetime | None = Non
         raise ValueError(f"Windguru forecast is missing: {', '.join(missing)}")
 
     return {
-        "timestamp": _value_from(record, TIMESTAMP_KEYS)
-        or datetime.now(timezone.utc).isoformat(),
+        "timestamp": _timestamp_from(record),
         "wind_speed_kmh": wind_speed,
         "wind_direction": wind_direction,
         "swell_height_m": swell_height,
@@ -124,6 +125,10 @@ def _direction_from(record: dict[str, Any], keys: tuple[str, ...]) -> str | None
 
 
 def _datetime_from(record: dict[str, Any], keys: tuple[str, ...]) -> datetime | None:
+    forecast_datetime = _forecast_datetime_from(record)
+    if forecast_datetime:
+        return forecast_datetime
+
     value = _value_from(record, keys)
     if value is None:
         return None
@@ -145,6 +150,23 @@ def _datetime_from(record: dict[str, Any], keys: tuple[str, ...]) -> datetime | 
     return parsed.replace(tzinfo=DEFAULT_TIMEZONE)
 
 
+def _forecast_datetime_from(record: dict[str, Any]) -> datetime | None:
+    forecast_date = _value_from(record, FORECAST_DATE_KEYS)
+    forecast_hour = _value_from(record, FORECAST_HOUR_KEYS)
+    if forecast_date is None or forecast_hour is None:
+        return None
+
+    try:
+        date = datetime.fromisoformat(str(forecast_date)).date()
+        hour = int(float(forecast_hour))
+    except ValueError:
+        return None
+
+    if not 0 <= hour <= 23:
+        return None
+    return datetime.combine(date, datetime.min.time(), DEFAULT_TIMEZONE).replace(hour=hour)
+
+
 def _degrees_to_compass(degrees: float) -> str:
     directions = ("N", "NE", "E", "SE", "S", "SW", "W", "NW")
     index = round(degrees / 45) % len(directions)
@@ -163,6 +185,16 @@ def _stage_from(record: dict[str, Any], keys: tuple[str, ...]) -> str | None:
     if "high" in text:
         return "high"
     return text or None
+
+
+def _timestamp_from(record: dict[str, Any]) -> str:
+    parsed = _datetime_from(record, TIMESTAMP_KEYS)
+    if parsed:
+        return parsed.isoformat()
+    value = _value_from(record, TIMESTAMP_KEYS)
+    if value:
+        return str(value)
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _movement_from(record: dict[str, Any], keys: tuple[str, ...]) -> str | None:
