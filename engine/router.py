@@ -3,19 +3,18 @@ import os
 from engine.forecast import normalize_windguru_forecast
 from engine.scoring import evaluate_spot, load_optimal_conditions
 from engine.time_utils import parse_target_time, target_time_label
-from jobs.fetch_apify import APIFY_ACTOR_ID, fetch_windguru_forecasts
+from jobs.fetch_windguru import fetch_windguru_forecasts
 
 
 SOURCE_POLICY = {
-    "source_name": "Apify Windguru forecast actor",
-    "provider": "apify",
-    "actor_id": APIFY_ACTOR_ID,
-    "allowed_live_sources": ["apify"],
+    "source_name": "Windguru direct forecast API",
+    "provider": "windguru_direct",
+    "allowed_live_sources": ["windguru_direct"],
     "external_live_sources_used": [],
     "rule": (
-        "Recommendations are valid only when forecast data was fetched through "
-        "Apify. If Apify data is unavailable, do not supplement with browsing, "
-        "memory, Windy, Surfline, direct Windguru pages, or any other source."
+        "Recommendations are valid only when forecast data was fetched directly "
+        "from Windguru. If Windguru data is unavailable, do not supplement with "
+        "browsing, memory, Windy, Surfline, Apify, or any other source."
     ),
 }
 
@@ -29,14 +28,19 @@ def get_best_spot(spot_keys=None, target_time=None):
     errors = {}
 
     spot_items = list(spots.items())
-    for chunk in _chunks(spot_items, _apify_spots_per_run()):
+    for chunk in _chunks(spot_items, _windguru_spots_per_batch()):
         windguru_ids = [spot["windguru_spot_id"] for _, spot in chunk]
         try:
             payload = fetch_windguru_forecasts(windguru_ids)
         except Exception as exc:
-            for spot_id, _ in chunk:
-                errors[spot_id] = str(exc)
-            continue
+            payload = []
+            for spot_id, spot in chunk:
+                try:
+                    payload.extend(fetch_windguru_forecasts([spot["windguru_spot_id"]]))
+                except Exception as spot_exc:
+                    errors[spot_id] = str(spot_exc or exc)
+            if not payload:
+                continue
 
         for spot_id, spot in chunk:
             try:
@@ -64,10 +68,10 @@ def get_best_spot(spot_keys=None, target_time=None):
 
 
 def recommendation_text(best, ranked, target_time=None):
-    source_note = "Source: Apify Windguru forecast actor only."
+    source_note = "Source: Windguru direct forecast API only."
     if not best:
         return (
-            f"{source_note} I could not fetch enough Apify forecast data for "
+            f"{source_note} I could not fetch enough Windguru forecast data for "
             f"{target_time_label(target_time)}, so I cannot make a surf call."
         )
 
@@ -109,7 +113,6 @@ def _evaluate_from_payload(spot_id, spot, payload, target_time):
     forecast["source"] = {
         "source_name": SOURCE_POLICY["source_name"],
         "provider": SOURCE_POLICY["provider"],
-        "actor_id": SOURCE_POLICY["actor_id"],
         "windguru_spot_id": spot["windguru_spot_id"],
         "external_live_sources_used": [],
     }
@@ -129,7 +132,7 @@ def _records_for_spot(payload, windguru_spot_id):
         if record_spot_id is None or str(record_spot_id) == expected:
             records.append(record)
     if not records:
-        raise ValueError(f"No Apify forecast records found for Windguru spot {windguru_spot_id}")
+        raise ValueError(f"No direct Windguru forecast records found for spot {windguru_spot_id}")
     return records
 
 
@@ -146,9 +149,9 @@ def _flatten_records(payload):
     return records
 
 
-def _apify_spots_per_run():
+def _windguru_spots_per_batch():
     try:
-        return max(1, int(os.getenv("APIFY_SPOTS_PER_RUN", "4")))
+        return max(1, int(os.getenv("WINDGURU_SPOTS_PER_BATCH", "4")))
     except ValueError:
         return 4
 

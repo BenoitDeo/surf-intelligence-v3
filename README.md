@@ -1,7 +1,7 @@
 # SurfCheck
 
-SurfCheck ranks Peniche-area surf spots from Windguru forecasts fetched through
-Apify's `fortuitous_pirate/windguru-forecast-agent`.
+SurfCheck ranks Peniche-area surf spots from forecasts fetched directly from
+Windguru's web forecast API.
 
 ## Cheapest setup that works while driving
 
@@ -61,36 +61,31 @@ One quick deployment path is Render:
 3. Use `render.yaml`, or set:
    - Build command: `pip install -r requirements.txt`
    - Start command: `python mcp_server.py`
-4. Add `APIFY_TOKEN` in Render environment variables.
+4. Add `SURFCHECK_ACCESS_TOKEN` in Render environment variables.
 5. Use `https://your-render-service.onrender.com/mcp` in ChatGPT web.
 
 This first version is intentionally simple and does not implement OAuth on the
 SurfCheck MCP server itself. Keep the URL private, or add MCP auth before
 sharing it broadly.
 
-## Apify MCP setup
+## Windguru direct setup
 
-In ChatGPT Developer mode, create the Apify app with:
+SurfCheck no longer uses Apify. It reads Windguru's web forecast API directly and
+caches forecast rows in memory to avoid repeated Windguru requests on every GPT
+question. Some Windguru spot pages only expose wind tabs; for those, SurfCheck
+keeps the spot-specific wind forecast and uses a nearby Windguru wave-enabled
+spot for swell data.
 
-- Name: `Apify`
-- MCP Server URL:
-  `https://mcp.apify.com/?tools=actors,docs,fortuitous_pirate/windguru-forecast-agent`
-- Authentication: OAuth
+Set `SURFCHECK_ACCESS_TOKEN` in Render to protect the Siri Shortcut and Action
+endpoints.
 
-Then authorize the app with Apify and select it from `+ > Developer mode` in a
-conversation.
-
-For local API runs, set:
+Optional Render environment variables:
 
 ```sh
-APIFY_TOKEN=your_apify_token
+WINDGURU_CACHE_TTL_SECONDS=10800
+WINDGURU_SPOTS_PER_BATCH=4
+WINDGURU_WAVE_FALLBACK_SPOT_ID=501140
 ```
-
-For Render, set `APIFY_TOKEN` as an environment variable in the Render dashboard.
-Set `SURFCHECK_ACCESS_TOKEN` too. This protects the Siri Shortcut endpoints.
-Optionally set `APIFY_SPOTS_PER_RUN` to control how many Windguru spots are sent
-to each Apify actor run. The default is `4`, which keeps Apify calls sequential
-and avoids account memory-limit errors from many concurrent actor runs.
 
 ## Run
 
@@ -123,7 +118,7 @@ Voice Mode still does not run custom actions.
 4. In Instructions, paste:
 
 ```text
-You are SurfCheck. When the user asks about surf spots near Peniche, you MUST use the SurfCheck action before answering. SurfCheck action results are the only allowed live forecast source. Do not answer surf-condition questions from memory, browsing, web search, Windy, Surfline, direct Windguru pages, or general knowledge. Use the action response's source_policy/source fields as provenance and state that the source is Apify only. If ok is false, best_spot is null, or the action fails, say SurfCheck could not fetch Apify forecast data and do not make a surf recommendation. Always explain the best spot, the score, the main reasons, and 2-3 alternatives when Apify data is available. If the user asks for a future time, pass it as the at parameter, e.g. tomorrow 9am. If unsure, pass the full user question as the question parameter.
+You are SurfCheck. When the user asks about surf spots near Peniche, you MUST use the SurfCheck action before answering. SurfCheck action results are the only allowed live forecast source. Do not answer surf-condition questions from memory, browsing, web search, Windy, Surfline, Apify, or general knowledge. Use the action response's source_policy/source fields as provenance and state that the source is Windguru direct only. If ok is false, best_spot is null, or the action fails, say SurfCheck could not fetch Windguru forecast data and do not make a surf recommendation. Always explain the best spot, the score, the main reasons, and 2-3 alternatives when Windguru data is available. If the user asks for a future time, pass it as the at parameter, e.g. tomorrow 9am. If unsure, pass the full user question as the question parameter.
 ```
 
 5. Add an Action.

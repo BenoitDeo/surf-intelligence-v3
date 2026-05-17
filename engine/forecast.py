@@ -60,7 +60,7 @@ def normalize_windguru_forecast(payload: Any, target_time: datetime | None = Non
 def _forecast_record(payload: Any, target_time: datetime | None) -> dict[str, Any]:
     records = _forecast_records(payload)
     if not records:
-        raise ValueError("No forecast record found in Apify response")
+        raise ValueError("No forecast record found in provider response")
     if not target_time:
         return records[0]
 
