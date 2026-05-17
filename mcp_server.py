@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 
-from engine.router import get_best_spot
+from engine.router import SOURCE_POLICY, get_best_spot
 from engine.scoring import load_optimal_conditions
 
 
@@ -13,7 +13,9 @@ mcp = FastMCP(
         "Use this server to recommend the best current surf spot around "
         "Peniche, Portugal. All live surf recommendations must use Windguru "
         "forecasts fetched through Apify; do not use model memory, web browsing, "
-        "or direct Windguru calls as a substitute."
+        "direct Windguru calls, Windy, Surfline, or any other source as a "
+        "substitute. If Apify data is unavailable, say the forecast is "
+        "unavailable instead of answering from another source."
     ),
     stateless_http=True,
     json_response=True,
@@ -26,6 +28,7 @@ def best_surf_spot(include_all_spots: bool = False, target_time: str | None = No
     result = get_best_spot(target_time=target_time)
     response = {
         "summary": result["summary"],
+        "source_policy": result["source_policy"],
         "best_spot": result["best_spot"],
         "errors": result["errors"],
     }
@@ -36,7 +39,7 @@ def best_surf_spot(include_all_spots: bool = False, target_time: str | None = No
 
 @mcp.tool()
 def list_surf_spots() -> list[dict]:
-    """List the configured surf spots and their Windguru spot IDs."""
+    """List configured surf spots. This is metadata only, not a live forecast source."""
     return [
         {
             "key": key,
@@ -45,6 +48,7 @@ def list_surf_spots() -> list[dict]:
             "has_live_forecast": bool(spot["windguru_spot_id"]),
             "lat": spot["lat"],
             "lon": spot["lon"],
+            "live_forecast_source": SOURCE_POLICY["source_name"],
         }
         for key, spot in load_optimal_conditions().items()
     ]

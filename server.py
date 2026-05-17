@@ -46,8 +46,9 @@ async def surf(request):
         return JSONResponse(
             {
                 "ok": False,
-                "summary": "No surf forecast could be fetched. Check APIFY_TOKEN and the Apify actor response.",
+                "summary": result["summary"],
                 "target_time": result.get("target_time"),
+                "source_policy": result.get("source_policy"),
                 "best_spot": None,
                 "all_spots": [],
                 "errors": result["errors"],
@@ -89,7 +90,9 @@ async def openapi_action_schema(request):
                 "description": (
                     "Recommends the best surf spot around Peniche by comparing "
                     "Apify-fetched Windguru forecasts against optimal conditions "
-                    "for each spot. SurfCheck must be the only live forecast source."
+                    "for each spot. SurfCheck must be the only live forecast source. "
+                    "If Apify does not return data, the client must say it cannot "
+                    "answer and must not supplement from any other source."
                 ),
             },
             "servers": [{"url": base_url}],
@@ -102,7 +105,10 @@ async def openapi_action_schema(request):
                             "Use this whenever the user asks for the best surf spot, "
                             "surf forecast, ranking, or what spot to choose near Peniche. "
                             "Do not answer these questions from model memory or web browsing; "
-                            "this Apify-backed operation is the required source of truth."
+                            "this Apify-backed operation is the required source of truth. "
+                            "Use the source_policy field in the response as provenance. "
+                            "If ok is false or best_spot is null, say SurfCheck could not "
+                            "fetch Apify data and do not use any other source."
                         ),
                         "parameters": [
                             {
@@ -148,10 +154,12 @@ async def openapi_action_schema(request):
                         "type": "object",
                         "properties": {
                             "summary": {"type": "string"},
+                            "ok": {"type": "boolean"},
                             "target_time": {
                                 "type": "string",
                                 "nullable": True,
                             },
+                            "source_policy": {"type": "object"},
                             "best_spot": {"type": "object"},
                             "all_spots": {
                                 "type": "array",

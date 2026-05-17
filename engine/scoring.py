@@ -27,6 +27,7 @@ def evaluate_spot(spot_id, spot, forecast):
     return {
         "spot": spot_id,
         "name": profile["name"],
+        "source": forecast.get("source"),
         "forecast": forecast,
         "scores": scores,
         "total_score": round(total, 2),
